@@ -91,7 +91,7 @@ class KMeansRun:
         Calculate n clusters assigning each feature to its nearest centroids
         """
         # Intialize empty clusters list and centroid:cluster map
-        clusters = []
+        clusters: 'list[Cluster]' = []
         centroid_cluster_map = {}
 
         for i in range(self.n_features):
@@ -119,7 +119,20 @@ class KMeansRun:
 
         # Calculate sse for each cluster.
         for c in clusters:
-            c.calc_sse()
+            # BUG:  Cluster centroid has not been set
+            # Looks like this was happening with centroid = 0. Updated
+            # cluster.calc_sse to check for centroid is None, rather than
+            # centroid is truthy (0 evals to False)
+            try:
+                c.calc_sse()
+            except AttributeError as e:
+                self.LOGGER.fatal("Cluster missing centroid with features '%s'-" \
+                        " centroid_cluster_map: '%s'"
+                        %(
+                            c.features,
+                            [{k: v.features} for k, v in centroid_cluster_map.items()]
+                        ))
+                raise e
         return clusters
 
     def _init_centroids(self) -> 'list[int]':

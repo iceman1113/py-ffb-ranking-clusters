@@ -20,6 +20,7 @@ Required CSV columns
     FPTS    Fantasy points
 """
 import argparse
+from ast import Store
 import csv
 import logging
 
@@ -65,13 +66,26 @@ def _cmdline_invoke(opts):
             # Get number of features and calculate n_clusters.
             # If features does not divide evenly in cluster_features, add an
             # additional n_cluster.
-            _features: 'list[float]' = [_r['FPTS'] for _r in weekly_pos_map[_wk][_pos]]
+            _features: 'list[float]' = [float(_r['FPTS']) for _r in weekly_pos_map[_wk][_pos]]
             _n_features = len(_features)
             _n_clusters = int(_n_features / opts.cluster_features)
             if not (_n_features % opts.cluster_features == 0):
                 _n_clusters += 1
-            LOGGER.debug("wk '%s-%s': n_features = '%d'; n_clusters = '%s'; features = '%s'"
-                    %(_wk, _pos, _n_features, _n_clusters, _features))
+
+            # Compare tiers to clusters
+            LOGGER.info("Calculating KMeans for wk '%s-%s': n_features = '%d'" \
+                    "; n_clusters = '%s'; features = '%s'"
+                    %(_wk, _pos, _n_features, _n_clusters, _features)
+                    )
+            kmeans = KMeans(features=_features, n_clusters=_n_clusters, n_runs=10)
+            kmeans.kmeans()
+            LOGGER.info("'%s-%s' tiering comparison (sse = '%f'): %s"
+                    %(
+                        _wk,
+                        _pos,
+                        kmeans.sse,
+                        [{c.centroid: c.features} for c in kmeans.clusters]
+                    ))
 
 def _parse_args():
     parser = argparse.ArgumentParser()
@@ -82,6 +96,13 @@ def _parse_args():
         help="The number of target features per cluster",
         required=False,
         type=int
+    )
+
+    parser.add_argument(
+        "--debug",
+        action='store_true',
+        help="Enable debug logging",
+        required=False
     )
 
     parser.add_argument(
@@ -106,5 +127,7 @@ if __name__ in ["main", "__main__"]:
     )
 
     args = _parse_args().parse_args()
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
     LOGGER.debug("args:  %s" %args)
     _cmdline_invoke(args)

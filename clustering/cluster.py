@@ -36,9 +36,11 @@ class Cluster:
         Calculate Sum of Squares Due to Error for the given cluster
         """
         # Validate centroid and features are set
-        if not self.centroid:
+        # if not self.centroid:
+        if self.centroid is None:
             raise AttributeError("Cluster centroid has not been set")
-        if not self.features:
+        # if not self.features:
+        if self.features is None:
             raise AttributeError("Cluster has no features")
 
         _sse = 0.0
