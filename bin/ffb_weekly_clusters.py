@@ -22,15 +22,35 @@ import argparse
 import csv
 import logging
 
+# Module logger.
+LOGGER = logging.getLogger("ffb_weekly_clusters")
+
 def _cmdline_invoke(opts):
     items = []
-    # Read in CSV file
-    logging.debug("reading csv file %s" %opts.file)
+    weekly_pos_map = {}
+    lines = 0
+    # Read in CSV file, bucket each row into a 2D map:
+    #   {
+    #       <Wk>: {
+    #           <Pos>: [<row>]
+    #       }
+    #   }
+    LOGGER.debug("reading csv file %s" %opts.file)
     with open(opts.file, mode='r') as _csv:
         for row in csv.DictReader(_csv):
-            items.append(row)
+            lines += 1
+            wk = row['Wk']
+            pos = row['Pos']
+            # LOGGER.debug("DEBUG:  wk = '%s'; pos = '%s'" %(wk, pos))
 
-    # logging.debug("items (%i)= %s" %(lines, items))
+            # Create weekly_pos_map entry if it doesn't exist, add row to map.
+            if wk not in weekly_pos_map:
+                weekly_pos_map[wk] = {}
+            if pos not in weekly_pos_map[wk]:
+                weekly_pos_map[wk][pos] = []
+            weekly_pos_map[wk][pos].append(row)
+
+    # LOGGER.debug("DEBUG:  weekly_pos_map (%i)= %s" %(lines, weekly_pos_map))
 
 def _parse_args():
     parser = argparse.ArgumentParser()
@@ -65,5 +85,5 @@ if __name__ in ["main", "__main__"]:
     )
 
     args = _parse_args().parse_args()
-    logging.debug("args:  %s" %args)
+    LOGGER.debug("args:  %s" %args)
     _cmdline_invoke(args)
