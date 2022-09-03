@@ -5,3 +5,6 @@ __pycache__/
 
 # Ignore temporary workspace used for app
 __tmpworkspace__/
+
+# Ignore output dirs
+output/
