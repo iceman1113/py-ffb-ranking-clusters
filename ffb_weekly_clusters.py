@@ -17,17 +17,22 @@ Required CSV columns
     Wk      NFL week
     Rank    Weekly positional ranking
     Pos     Position
+    FPTS    Fantasy points
 """
 import argparse
 import csv
 import logging
 
+from clustering import Cluster
+from clustering import KMeans
+from clustering import ClusterApproximator
+
 # Module logger.
 LOGGER = logging.getLogger("ffb_weekly_clusters")
 
 def _cmdline_invoke(opts):
-    items = []
-    weekly_pos_map = {}
+    # items = []
+    weekly_pos_map: dict = {}
     lines = 0
     # Read in CSV file, bucket each row into a 2D map:
     #   {
@@ -37,20 +42,36 @@ def _cmdline_invoke(opts):
     #   }
     LOGGER.debug("reading csv file %s" %opts.file)
     with open(opts.file, mode='r') as _csv:
-        for row in csv.DictReader(_csv):
+        for _row in csv.DictReader(_csv):
             lines += 1
-            wk = row['Wk']
-            pos = row['Pos']
+            _wk = _row['Wk']
+            _pos = _row['Pos']
             # LOGGER.debug("DEBUG:  wk = '%s'; pos = '%s'" %(wk, pos))
 
             # Create weekly_pos_map entry if it doesn't exist, add row to map.
-            if wk not in weekly_pos_map:
-                weekly_pos_map[wk] = {}
-            if pos not in weekly_pos_map[wk]:
-                weekly_pos_map[wk][pos] = []
-            weekly_pos_map[wk][pos].append(row)
+            if _wk not in weekly_pos_map:
+                weekly_pos_map[_wk] = {}
+            if _pos not in weekly_pos_map[_wk]:
+                weekly_pos_map[_wk][_pos] = []
+            weekly_pos_map[_wk][_pos].append(_row)
 
     # LOGGER.debug("DEBUG:  weekly_pos_map (%i)= %s" %(lines, weekly_pos_map))
+
+    for _wk in weekly_pos_map:
+        # LOGGER.debug("DEBUG:  wk = '%s'" %_wk)
+        for _pos in weekly_pos_map[_wk]:
+            # LOGGER.debug("DEBUG:  pos = '%s'" %_pos)
+
+            # Get number of features and calculate n_clusters.
+            # If features does not divide evenly in cluster_features, add an
+            # additional n_cluster.
+            _features: 'list[float]' = [_r['FPTS'] for _r in weekly_pos_map[_wk][_pos]]
+            _n_features = len(_features)
+            _n_clusters = int(_n_features / opts.cluster_features)
+            if not (_n_features % opts.cluster_features == 0):
+                _n_clusters += 1
+            LOGGER.debug("wk '%s-%s': n_features = '%d'; n_clusters = '%s'; features = '%s'"
+                    %(_wk, _pos, _n_features, _n_clusters, _features))
 
 def _parse_args():
     parser = argparse.ArgumentParser()
@@ -80,7 +101,7 @@ def _parse_args():
 
 if __name__ in ["main", "__main__"]:
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format='<> %(asctime)s [%(threadName)s] %(levelname)s %(name)s - %(message)s'
     )
 
