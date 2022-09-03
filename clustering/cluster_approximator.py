@@ -1,4 +1,10 @@
 """
+
+Tested with:
+    python
+        python-3.8.10
+        python-3.9.6
+
 """
 
 import logging
@@ -11,17 +17,17 @@ class ClusterApproximator:
     # Class logger.
     LOGGER = logging.getLogger("%s.ClusterApproximator")
 
-    features: list[float] = None
+    features: 'list[float]' = None
     max_iter: int = None
     n_runs: int = None
     min_clusters: int = None
 
     n_features: int = None
 
-    kmeans_list: list[KMeans] = None
+    kmeans_list: 'list[KMeans]' = None
     kmeans: KMeans = None
 
-    def __init__(self, features: list[float],
+    def __init__(self, features: 'list[float]',
                  max_iter: int=KMeans.DEFAULT_MAX_ITER,
                  n_runs: int=KMeans.DEFAULT_N_RUNS, min_clusters: int=2):
         features.sort()

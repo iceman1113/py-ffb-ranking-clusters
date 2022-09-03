@@ -1,4 +1,10 @@
 """
+
+Tested with:
+    python
+        python-3.8.10
+        python-3.9.6
+
 """
 
 import logging
@@ -15,17 +21,17 @@ class KMeans:
     DEFAULT_MAX_ITER = 100
     DEFAULT_N_RUNS = 10
 
-    features: list[float] = None
+    features: 'list[float]' = None
     n_clusters: int = None
     max_iter: int = None
 
-    clusters: list[Cluster] = None
+    clusters: 'list[Cluster]' = None
     n_features: int = None
     sse: float = None
     winning_run: KMeansRun = None
-    runs: list[KMeansRun] = None
+    runs: 'list[KMeansRun]' = None
 
-    def __init__(self, features: list[float], n_clusters: int, n_runs: int, max_iter: int=DEFAULT_MAX_ITER):
+    def __init__(self, features: 'list[float]', n_clusters: int, n_runs: int, max_iter: int=DEFAULT_MAX_ITER):
         self.features = features
         self.features.sort()
         self.n_clusters = n_clusters

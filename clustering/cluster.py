@@ -1,13 +1,19 @@
 """
+
+Tested with:
+    python
+        python-3.8.10
+        python-3.9.6
+
 """
 
 class Cluster:
     centroid: float = None
-    features: list[float] = None
+    features: 'list[float]' = None
 
     sse = None
 
-    def __init__(self, centroid: float=None, features: list[float]=None):
+    def __init__(self, centroid: float=None, features: 'list[float]'=None):
         self.centroid = centroid
 
         if not features:

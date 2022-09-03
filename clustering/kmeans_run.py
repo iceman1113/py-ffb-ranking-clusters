@@ -1,4 +1,10 @@
 """
+
+Tested with:
+    python
+        python-3.8.10
+        python-3.9.6
+
 """
 
 import logging
@@ -11,16 +17,16 @@ class KMeansRun:
     # Class logger.
     LOGGER = logging.getLogger("%s.KMeansRun" %__module__)
 
-    features: list[float] = None
+    features: 'list[float]' = None
     n_clusters: int = None
     max_iter: int = None
     run_num: int = None
 
     iter: int = None
     sse: float = None
-    clusters: list[Cluster] = None
+    clusters: 'list[Cluster]' = None
 
-    def __init__(self, features: list[float], n_clusters: int, max_iter: int, run_num: int=0):
+    def __init__(self, features: 'list[float]', n_clusters: int, max_iter: int, run_num: int=0):
         self.features = features
         self.features.sort()
         self.n_clusters = n_clusters
@@ -80,7 +86,7 @@ class KMeansRun:
         self.clusters = clusters
         self.sse = self.calc_sse(clusters)
 
-    def _calc_clusters(self, centroids: list) -> list[Cluster]:
+    def _calc_clusters(self, centroids: list) -> 'list[Cluster]':
         """
         Calculate n clusters assigning each feature to its nearest centroids
         """
@@ -116,7 +122,7 @@ class KMeansRun:
             c.calc_sse()
         return clusters
 
-    def _init_centroids(self) -> list[int]:
+    def _init_centroids(self) -> 'list[int]':
         """
         Randomly initialize n centroids between [min, max] feature values
         """
@@ -135,7 +141,7 @@ class KMeansRun:
                     self.LOGGER.debug("Centroid '%s' already in list %s; selecting another centroid" %(centroid, _centroids))
         return _centroids
 
-    def _insert_cluster(self, clusters: list[Cluster]) -> list[Cluster]:
+    def _insert_cluster(self, clusters: 'list[Cluster]') -> 'list[Cluster]':
         """
         Insert a new cluster into the provided list of clusters.
 
@@ -180,7 +186,7 @@ class KMeansRun:
         return clusters
 
     @classmethod
-    def calc_sse(self, clusters: list[Cluster]) -> float:
+    def calc_sse(self, clusters: 'list[Cluster]') -> float:
         """
         Calculate Sum of Squares Due to Error for the given clusters
         """
