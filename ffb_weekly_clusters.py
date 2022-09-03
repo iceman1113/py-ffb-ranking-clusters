@@ -47,6 +47,12 @@ def _cmdline_invoke(opts):
             lines += 1
             _wk = _row['Wk']
             _pos = _row['Pos']
+            # If --pos was specified, skip if this is not the targeted position.
+            if opts.pos:
+                if not _pos == opts.pos:
+                    # LOGGER.debug("Skipping position '%s'" %_pos)
+                    continue
+                    
             # LOGGER.debug("DEBUG:  wk = '%s'; pos = '%s'" %(wk, pos))
 
             # Create weekly_pos_map entry if it doesn't exist, add row to map.
@@ -116,6 +122,13 @@ def _parse_args():
         "-o", "--out-file",
         help="CSV output file, i.e. data/output/nfl_2021_weekly_player_stats_consolidated_enriched.csv",
         required=True,
+        type=str
+    )
+
+    parser.add_argument(
+        "-p", "--pos",
+        help="Limit analysis to position",
+        required=False,
         type=str
     )
     return parser
