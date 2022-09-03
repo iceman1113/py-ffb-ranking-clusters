@@ -1,0 +1,7 @@
+# Ignore compiled python modules
+__pycache__/
+*.py[cod]
+.vscode/
+
+# Ignore temporary workspace used for app
+__tmpworkspace__/
