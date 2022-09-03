@@ -29,7 +29,7 @@ def _parse_args():
 if __name__ in ["main", "__main__"]:
     logging.basicConfig(
         level=logging.DEBUG,
-        format='[%(asctime)s] %(module)s %(levelname)s - %(message)s'
+        format='<> %(asctime)s [%(threadName)s] %(levelname)s %(name)s - %(message)s'
     )
 
     args = _parse_args().parse_args()
