@@ -99,7 +99,8 @@ def _parse_args():
     parser.add_argument(
         "--cluster-features",
         default=12,
-        help="The number of target features per cluster",
+        help="The number of target features per cluster, this is normally the" \
+                " number of teams in a league.  Defaults to 12",
         required=False,
         type=int
     )
