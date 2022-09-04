@@ -32,7 +32,8 @@ from clustering import ClusterApproximator
 LOGGER = logging.getLogger("ffb_weekly_clusters")
 
 def _cmdline_invoke(opts):
-    # items = []
+    tier_key = "K-Tier"
+    field_names = [ ]
     weekly_pos_map: dict = {}
     lines = 0
     # Read in CSV file, bucket each row into a 2D map:
@@ -44,6 +45,9 @@ def _cmdline_invoke(opts):
     LOGGER.debug("reading csv file %s" %opts.file)
     with open(opts.file, mode='r') as _csv:
         for _row in csv.DictReader(_csv):
+            if lines == 0:
+                for k in _row.keys():
+                    field_names.append(k)
             lines += 1
             _wk = _row['Wk']
             _pos = _row['Pos']
@@ -92,6 +96,39 @@ def _cmdline_invoke(opts):
                         kmeans.sse,
                         [{c.centroid: c.features} for c in kmeans.clusters]
                     ))
+
+            # Create a feature map by centroid
+            _centroid_feature_map = {}
+            for _c in kmeans.clusters:
+                _centroid_feature_map[_c.centroid] = _c.features
+            # LOGGER.info("DEBUG:  centroid_cluster_map = '%s'" %_centroid_feature_map)
+
+            # Sort centroids in descending order
+            _centroids = [_c for _c in _centroid_feature_map.keys()]
+            _centroids.sort(reverse=True)
+            # LOGGER.info("DEBUG:  centroids = '%s'" %_centroids)
+
+            # Add KMeans-tier to each cluster feature
+            for i in range(len(_centroids)):
+                _tier = i + 1
+                for _feature in _centroid_feature_map[_centroids[i]]:
+                    # LOGGER.info("DEBUG:  _feature = '%s'" %_feature)
+                    for _r in weekly_pos_map[_wk][_pos]:
+                        if (float(_r['FPTS']) == _feature):
+                            # LOGGER.info("DEBUG:  _feature '%s' has kmeans_tier = '%s'"
+                            #         %(_feature, _tier))
+                            _r[tier_key] = _tier
+
+    # Add the tier key to the field name list and write out to CSV
+    field_names.append(tier_key)
+    with open(opts.out_file, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=field_names)
+        writer.writeheader()
+        for _wk in weekly_pos_map:
+            for _pos in weekly_pos_map[_wk]:
+                for _r in weekly_pos_map[_wk][_pos]:
+                    # LOGGER.info("DEBUG:  row = '%s'" %_r)
+                    writer.writerow(_r)
 
 def _parse_args():
     parser = argparse.ArgumentParser()
